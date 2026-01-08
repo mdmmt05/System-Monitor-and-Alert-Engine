@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="20">
+    <title>System Monitor</title>
+</head>
+<body>
+    <h1>System Resource Monitor</h1>
+    
+    <h2>CPU Usage</h2>
+    <p>CPU: {{ cpu_usage }}%</p>
+    
+    <h2>RAM Usage</h2>
+    <p>RAM: {{ ram_usage }}%</p>
+    
+    <h2>Disk Usage</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Disk Name</th>
+                <th>Usage (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disk in disks %}
+            <tr>
+                <td>{{ disk.name }}</td>
+                <td>{{ disk.usage }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <br>
+    <form action="/settings" method="get">
+        <button type="submit">Settings</button>
+    </form>
+</body>
+</html>

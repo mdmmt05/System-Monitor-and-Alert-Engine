@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Process Monitor</title>
+</head>
+<body>
+    <h1>Settings - Process Management</h1>
+    
+    <h2>All Running Processes</h2>
+    <p>Select processes to add to the followed list:</p>
+    
+    <form action="/add_processes" method="post">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>PID</th>
+                    <th>Process Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for process in processes %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_processes" value="{{ process.name }}">
+                    </td>
+                    <td>{{ process.pid }}</td>
+                    <td>{{ process.name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <button type="submit">Add Selected to Followed List</button>
+    </form>
+    
+    <hr>
+    
+    <h2>Followed Processes</h2>
+    {% if followed_processes %}
+    <p>These processes are being monitored:</p>
+    <form action="/remove_processes" method="post">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Process Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for process in followed_processes %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_processes" value="{{ process }}">
+                    </td>
+                    <td>{{ process }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <button type="submit">Remove Selected from Followed List</button>
+    </form>
+    {% else %}
+    <p>No processes are currently being followed.</p>
+    {% endif %}
+    
+    <hr>
+    
+    <form action="/" method="get">
+        <button type="submit">Back to Monitor</button>
+    </form>
+    
+    {% if message %}
+    <hr>
+    <p><strong>{{ message }}</strong></p>
+    {% endif %}
+</body>
+</html>
