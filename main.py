@@ -113,8 +113,8 @@ def extract_system_stats(interval: float = 0.1, skip_mount_types: Optional[set] 
 #Section 3: extracting power status
 class PoweringStatus(Enum):
     """Enumeration of possible power status"""
-    AC = "AC current"
-    BATTERY = "Battery"
+    AC = "Power Plugged"
+    BATTERY = "Using Battery"
     UNKNOWN = "Unknown"
 
 def extract_power_status() -> PoweringStatus:
@@ -131,7 +131,7 @@ def extract_power_status() -> PoweringStatus:
             logger.debug("No battery detected. Assuming AC power")
             return PoweringStatus.AC
         
-        if battery_info.power_plugged:
+        if battery_info:
             status = PoweringStatus.AC
         else:
             status = PoweringStatus.BATTERY
@@ -188,6 +188,50 @@ def get_process_status(pid):
     except Exception as e:
         logger.error(f"Unexpected error reading process {pid}: {type(e).__name__}: {e}")
         return None
+
+def get_pid_from_name(name):
+    """
+    Find the PID of a process by name.
+    
+    Args:
+        name: process name to search for (matches against name, exe basename, or cmdline)
+    
+    Returns:
+        int: PID of the first matching process
+        None: if no matching process found
+
+    Raises:
+        ValueError: if name is invalid
+    """
+    if not name or not isinstance(name, str):
+        raise ValueError("name must be a non-empty string")
+    
+    name = name.strip()
+    if not name:
+        raise ValueError("name cannot be whitespace only")
+    
+    for proc in psutil.process_iter(['pid', 'name', 'exe', 'cmdline']):
+        try:
+            info = proc.info
+            if info.get('name') == name:
+                return info['pid']
+            
+            if info.get('exe'):
+                if os.path.basename(info['exe']) == name:
+                    return info['pid']
+            
+            if info.get('cmdline') and len(info['cmdline']) > 0:
+                if info['cmdline'][0] == name:
+                    return info['pid']
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+        except Exception as e:
+            logger.warning(f"Errpr checking process: {type(e).__name__}: {e}")
+            continue
+    
+    logger.debug(f"No process found with name: {name}")
+    return None
 
 def add_process_to_file(process_name, filename):
     """
@@ -360,10 +404,39 @@ def index():
     cpu_usage = stats[0]
     ram_usage = stats[1]
     disks = stats[2]
+    power_status = extract_power_status().value
+
+    followed_processes_list = []
+    try:
+        process_names = get_followed_processes(FOLLOWED_PROCESSES_FILE)
+
+        for name in process_names:
+            pid = get_pid_from_name(name)
+            status = None
+
+            if pid:
+                status = get_process_status(pid)
+            
+            followed_processes_list.append({
+                'name': name,
+                'pid': pid,
+                'status': status,
+            })
+    
+    except FileNotFoundError:
+        with open(FOLLOWED_PROCESSES_FILE, 'w') as f:
+            pass
+        followed_processes_list = []
+    except Exception as e:
+        logger.error(f"Error getting followed processes: {e}")
+        followed_processes_list = []
+    
     return render_template('main.html',
                            cpu_usage=round(cpu_usage, 1),
                            ram_usage=round(ram_usage, 1),
-                           disks=disks)
+                           power_status=power_status,
+                           disks=disks,
+                           followed_processes=followed_processes_list)
 
 @app.route('/settings')
 def settings():

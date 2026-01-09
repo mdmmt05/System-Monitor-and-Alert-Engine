@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="20">
+    <meta http-equiv="refresh" content="5">
     <title>System Monitor</title>
 </head>
 <body>
@@ -14,6 +14,9 @@
     
     <h2>RAM Usage</h2>
     <p>RAM: {{ ram_usage }}%</p>
+	
+	<h2>Power Status</h2>
+    <p>Status: {{ power_status }}</p>
     
     <h2>Disk Usage</h2>
     <table border="1">
@@ -33,9 +36,35 @@
         </tbody>
     </table>
     
+    <h2>Followed Processes</h2>
+    {% if followed_processes %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Process Name</th>
+                <th>PID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for process in followed_processes %}
+            <tr>
+                <td>{{ process.name }}</td>
+                <td>{{ process.pid if process.pid else 'N/A' }}</td>
+                <td>{{ process.status if process.status else 'Not Running' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No processes are currently being followed. Go to Settings to add processes.</p>
+    {% endif %}
+    
     <br>
     <form action="/settings" method="get">
         <button type="submit">Settings</button>
     </form>
+    
+    <p><small>Page refreshes every 5 seconds</small></p>
 </body>
 </html>
