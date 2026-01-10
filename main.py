@@ -42,9 +42,7 @@ def detect_os() -> SupportedOS:
 
     if os_name not in os_map:
         supported = ', '.join(os_map.keys())
-        error_msg = f"Unsupported OS: {os_name}. Supported systems: {supported}"
-        logger.error(error_msg)
-        raise OSDetectionError(error_msg)
+        logger.warning(f"Unsupported OS: {os_name}. Supported systems: {supported}. Some features may not work properly")
 
     detected_os = os_map[os_name]
     logger.info(f"Detected OS: {detected_os.value}")
@@ -523,4 +521,5 @@ def remove_processes():
     return redirect(url_for('settings', message=message))
 
 if __name__ == '__main__':
+    detect_os()
     app.run(debug=True, host='0.0.0.0', port=5000)
