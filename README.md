@@ -6,7 +6,7 @@ A lightweight, web-based system monitoring dashboard built with Python and Flask
 
 ## 📸 Screenshots
 
-./screenshot.png
+![Dashboard Screenshot](screenshot.png)
 
 ---
 
