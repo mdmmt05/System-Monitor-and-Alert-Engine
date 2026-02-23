@@ -6,7 +6,7 @@ A lightweight, web-based system monitoring dashboard built with Python and Flask
 
 ## 📸 Screenshots
 
-> _Add your screenshots here._
+./screenshot.png
 
 ---
 
@@ -63,7 +63,7 @@ system-monitor/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/system-monitor.git
+   git clone https://github.com/mdmmt05/system-monitor.git
    cd system-monitor
    ```
 
